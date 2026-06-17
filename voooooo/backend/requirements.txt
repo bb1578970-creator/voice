@@ -10,3 +10,4 @@ soundfile
 scipy
 matplotlib
 gunicorn
+wfdb
