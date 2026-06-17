@@ -1,0 +1,857 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ 
+  <meta charset="UTF-8">
+  <title>VoiceHealth Avatar™</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+
+    body {
+      font-family:'Segoe UI', Arial, sans-serif;
+      background:linear-gradient(135deg,#0f172a,#1e3a8a,#06b6d4);
+      text-align:center;
+      color:white;
+      padding:20px;
+      min-height:100vh;
+    }
+    h1 { font-size: 26px; }
+    h2 { margin-top: 30px; }
+
+    /* Login Page */
+    #loginPage { margin-top: 100px; }
+    #loginBox  {
+    width: 350px;
+    padding: 35px;
+    margin: auto;
+
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px;
+
+    box-shadow:
+        0 8px 32px rgba(0,0,0,0.25),
+        inset 0 1px 1px rgba(255,255,255,0.2);
+
+    text-align: center;
+}
+
+   input,
+#patientSex {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+#loginBox input{
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;}
+
+ #patientBox
+    {
+    width:420px;
+    padding:35px;
+    margin:auto;
+
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+
+    border:1px solid rgba(255,255,255,0.25);
+    border-radius:20px;
+
+    box-shadow:
+        0 8px 32px rgba(0,0,0,0.25),
+        inset 0 1px 1px rgba(255,255,255,0.2);
+
+    text-align:center;
+}
+#patientBox input,
+#patientBox select{
+    background:rgba(255,255,255,0.15);
+    border:1px solid rgba(255,255,255,0.3);
+    color:white;
+}
+
+#patientBox input::placeholder{
+    color:rgba(255,255,255,0.8);
+}
+
+#patientBox select option{
+    color:black;
+}
+
+#loginBox input::placeholder{
+    color: rgba(255,255,255,0.8);
+}
+    
+   button{
+    background: linear-gradient(to bottom, #4A90E2, #2563EB);
+    color: white;
+    border: 1px solid #1E40AF;
+    padding: 15px 35px;      /* Increased */
+    margin: 12px;
+    font-size: 20px;         /* Increased */
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    min-width: 140px;        /* Increased */
+    min-height: 55px;        /* Increased */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+}
+#loginBox button{
+    width:220px;
+    height:60px;
+    font-size:28px;
+    font-weight:bold;
+    border-radius:15px;
+
+}
+#patientBox button{
+    width:220px;
+    height:65px;
+    font-size:28px;
+    font-weight:bold;
+    margin-top:15px;
+}
+
+button:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+button:active{
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+    /* Start Button */
+button[onclick="startRecording()"]{
+    background: linear-gradient(to bottom,#22C55E,#15803D);
+}
+
+/* Stop Button */
+button[onclick="stopRecording()"]{
+    background: linear-gradient(to bottom,#EF4444,#B91C1C);
+}
+
+/* View Voice Reference */
+button[onclick="showTables()"]{
+    background: linear-gradient(to bottom,#F59E0B,#D97706);
+}
+button[onclick="showConditions()"]{
+    background: linear-gradient(to bottom, #A855F7, #7E22CE);
+    border-color: #6B21A8;
+    min-width: 280px;
+}
+    canvas {
+      background: #FFF;
+      border-radius: 10px;
+    }
+    a {
+  display: none;
+  margin-top: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#downloadAudio{
+    color:#030f07;
+}
+
+#downloadChart{
+    color:#0f0b04;
+}
+    #loginPage, #patientPage, #pitchPage, #tablesPage { display: none; }
+    #pitchInfo { margin-top: 20px; font-size: 20px; font-weight: bold; }
+
+    /* Condition & Features Boxes */
+    #boxesContainer { display:flex; justify-content:center; margin-top:15px; gap:20px; }
+    #pitchConditionBox,
+#pitchFeaturesBox{
+    padding:18px;
+    border-radius:12px;
+    width:260px;
+    font-weight:bold;
+    font-size:20px;
+    text-align:center;
+    color:#111827;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+#pitchConditionBox{
+    background:#E0F2FE;
+    border-left:5px solid #2563EB;
+}
+
+#pitchFeaturesBox{
+    background:#FCE7F3;
+    border-left:5px solid #DB2777;
+}
+    /* Right-side column table */
+    #rightColumn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 250px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      text-align: left;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+    #rightColumn table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #rightColumn th, #rightColumn td {
+      border: 1px solid #999;
+      padding: 5px;
+      text-align: left;
+      font-size: 12px;
+    }
+    #rightColumn th { background:#4CAF50; color:white; }
+
+    /* Tables */
+    table.mainTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) { background: #f9f9f9; }
+    tr:hover { background: #f1f1f1; }
+/*popup*/
+    .popup{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    z-index:1000;
+}
+
+.popup-content{
+    background:white;
+    color:black;
+    width:80%;
+    max-width:900px;
+    margin:40px auto;
+    padding:20px;
+    border-radius:15px;
+    max-height:80vh;
+    overflow:auto;
+}
+
+.close{
+    float:right;
+    font-size:30px;
+    color:red;
+    cursor:pointer;
+}
+
+.popup table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.popup th{
+    background:#2563EB;
+    color:white;
+}
+
+.popup td,
+.popup th{
+    border:1px solid #ddd;
+    padding:10px;
+}
+#resultContainer{
+    display:flex;
+    gap:20px;
+    justify-content:center;
+    align-items:flex-start;
+    margin-top:20px;
+}
+
+#patientInfoBox{
+    width:250px;
+    background:white;
+    color:black;
+    padding:15px;
+    border-radius:10px;
+    text-align:left;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+}
+
+#patientInfoBox h3{
+    text-align:center;
+}
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage">
+    <h1 style="
+color:rgb(16, 16, 16);
+font-size:48px;
+font-weight:700;
+margin-bottom:20px;
+text-shadow:0 2px 10px rgba(0,0,0,0.3);
+">
+🎤 VoiceHealth Avatar™
+</h1>
+    <h2 style="color:rgb(13, 13, 13); font-size:42px; margin-bottom:25px;
+    text-shadow:0 2px 10px rgba(0,0,0,0.3);">
+    Login
+</h2>
+    <div id="loginBox">
+      <input type="text" id="username" placeholder="Enter Username"><br>
+      <input type="password" id="password" placeholder="Enter Password"><br>
+      <button type="button" onclick="login()">Login</button>
+      <p id="loginError" style="color:red; display:none;">Invalid credentials!</p>
+    </div>
+  </div>
+
+  <!-- PATIENT INFO PAGE -->
+  <div id="patientPage">
+    <h1 style="
+color:white;
+font-size:42px;
+font-weight:bold;
+margin-bottom:25px;
+text-shadow:0 2px 10px rgba(0,0,0,0.3);
+">
+Patient Registration
+</h1>
+    <div id="patientBox">
+      <input type="text" id="patientID" placeholder="Patient ID"><br>
+      <input type="text" id="patientName" placeholder="Patient Name"><br>
+      <input type="date" id="patientDOB" placeholder="Date of Birth"><br>
+      <select id="patientSex" class="patient-input">
+    <option value="">Select Sex</option>
+    <option value="Male">Male</option>
+    <option value="Female">Female</option>
+    <option value="Other">Other</option>
+    
+</select><br>
+     <button type="button" onclick="goToPitch()">Continue</button>
+    </div>
+  </div>
+
+  <!-- PITCH ANALYZER PAGE -->
+  <div id="pitchPage">
+    <h1>Clinical Voice Assessment</h1><p>VoiceHealth Avatar™ – AI-Powered Clinical Voice Assessment & Rehabilitation Platform</p>
+    
+    <div id="pitchInfo">Pitch: -- Hz | Category: --</div>
+    <div id="timer">Time: 0s</div>
+
+    <!-- Condition and Features Boxes -->
+    <div id="boxesContainer">
+      <div id="pitchConditionBox">Clinical Assessment: --</div>
+      <div id="pitchFeaturesBox">Detected Vocal Features: --</div>
+    </div>
+
+    <button type="button" onclick="startRecording()">Start</button>
+  <button type="button" onclick="stopRecording()">Stop</button>
+    <button type="button" onclick="showTables()">View Voice Reference</button>
+  <button type="button" onclick="showConditions()"> View Conditions & Features</button>
+
+    <br>
+    <a id="downloadAudio" download="voice_recording.wav">🎧 Download Audio</a>
+    <br>
+    <a id="downloadChart" download="pitch_graph.png">📊 Download Pitch Graph</a>
+
+    <div id="resultContainer">
+
+    <div id="patientInfoBox">
+        <h3>Patient Information</h3>
+        <p><b>ID:</b> <span id="displayID">-</span></p>
+        <p><b>Name:</b> <span id="displayName">-</span></p>
+        <p><b>DOB:</b> <span id="displayDOB">-</span></p>
+        <p><b>Sex:</b> <span id="displaySex">-</span></p>
+    </div>
+
+    <canvas id="pitchChart" width="700" height="400"></canvas>
+
+</div>
+
+    <!-- Right-side column showing all conditions and features -->
+    <!-- Conditions Popup -->
+<div id="conditionsPopup" class="popup">
+
+  <div class="popup-content">
+
+    <span class="close" onclick="closeConditions()">&times;</span>
+
+    <h2>All Conditions & Features</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Condition</th>
+          <th>Features</th>
+        </tr>
+      </thead>
+
+      <tbody id="conditionsTableBody">
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
+</div>
+
+  <!-- TABLES PAGE -->
+  <div id="tablesPage">
+    <h1>Voice Analysis Reference</h1>
+    <button onclick="backToPitch()">⬅ Back to Analyzer</button>
+
+    <h2>Normal Pitch Ranges</h2>
+
+<table border="1" style="margin:auto; background:white; color:black;">
+  <tr>
+    <th>Category</th>
+    <th>Pitch Range (Hz)</th>
+  </tr>
+  <tr>
+    <td>Adult Male</td>
+    <td>85 - 165</td>
+  </tr>
+  <tr>
+    <td>Adult Female</td>
+    <td>165 - 255</td>
+  </tr>
+  <tr>
+    <td>Child</td>
+    <td>250 - 400</td>
+  </tr>
+</table>
+
+<br>
+
+<h2>Voice Conditions</h2>
+
+<table border="1" style="margin:auto; background:white; color:black;">
+  <tr>
+    <th>Condition</th>
+    <th>Possible Feature</th>
+  </tr>
+  <tr>
+    <td>Monotone Voice</td>
+    <td>Low pitch variation</td>
+  </tr>
+  <tr>
+    <td>High-Pitched Voice</td>
+    <td>Pitch above normal range</td>
+  </tr>
+  <tr>
+    <td>Low-Pitched Voice</td>
+    <td>Pitch below normal range</td>
+  </tr>
+  <tr>
+    <td>Hoarseness</td>
+    <td>Irregular vocal quality</td>
+  </tr>
+</table>
+  </div>
+
+  <script>
+    window.onbeforeunload = function () {
+  return "Recording in progress";
+};
+    document.addEventListener("submit", function(e){
+  e.preventDefault();
+});
+    let isRecording = false;
+    function showPage(pageId) {
+  document.getElementById("loginPage").style.display = "none";
+  document.getElementById("patientPage").style.display = "none";
+  document.getElementById("pitchPage").style.display = "none";
+  document.getElementById("tablesPage").style.display = "none";
+
+  document.getElementById(pageId).style.display = "block";
+}
+window.addEventListener("DOMContentLoaded", () => {
+    showPage("loginPage");
+});
+
+function showConditions(){
+    document.getElementById("conditionsPopup").style.display = "block";
+}
+
+function closeConditions(){
+    document.getElementById("conditionsPopup").style.display = "none";
+}
+    // --- LOGIN FUNCTION ---
+    function login() {
+  const user = document.getElementById("username").value;
+  const pass = document.getElementById("password").value;
+
+  if (user === "admin" && pass === "1234") {
+    showPage("patientPage");   // ✅ FIXED
+  } else {
+    document.getElementById("loginError").style.display = "block";
+  }
+}
+function goToPitch() {
+
+  showPage("pitchPage");
+
+  document.getElementById("displayID").innerText =
+  document.getElementById("patientID").value;
+
+  document.getElementById("displayName").innerText =
+  document.getElementById("patientName").value;
+
+  document.getElementById("displayDOB").innerText =
+  document.getElementById("patientDOB").value;
+
+  document.getElementById("displaySex").innerText =
+  document.getElementById("patientSex").value;
+}
+
+    function showTables() {
+      document.getElementById("pitchPage").style.display = "none";
+      document.getElementById("tablesPage").style.display = "block";
+    }
+    function backToPitch() {
+      document.getElementById("tablesPage").style.display = "none";
+      document.getElementById("pitchPage").style.display = "block";
+    }
+
+    // --- DISORDERS DATA ---
+    const pitchDisorders = [
+      { condition:"Normal Voice", male:[85,165], female:[170,255], features:"Clear, stable pitch" },
+      { condition:"Puberphonia", male:[170,999], female:null, features:"High, thin, feminine pitch in males" },
+      { condition:"Hypothyroidism", male:[0,100], female:[0,170], features:"Low, husky pitch" },
+      { condition:"Hyperthyroidism", male:[200,999], female:[260,999], features:"Strained, high pitch" },
+      { condition:"Laryngitis", male:[80,120], female:[150,200], features:"Hoarseness, fatigue" },
+      { condition:"Vocal Cord Paralysis", male:[80,150], female:[150,220], features:"Breathy, weak voice, pitch breaks" },
+      { condition:"Vocal Cord Nodules/Polyps", male:[100,150], female:[180,230], features:"Raspy, rough tone" },
+      { condition:"Reflux Laryngitis (GERD)", male:[90,120], female:[160,210], features:"Morning hoarseness" },
+      { condition:"Tonsillitis", male:[90,130], female:[160,210], features:"Thick, guttural tone" },
+      { condition:"Cold / URI", male:[100,180], female:[180,230], features:"Nasalized, irregular resonance" }
+    ];
+
+    // Populate right-side table
+    const tbody = document.getElementById("conditionsTableBody");
+    for(let d of pitchDisorders){
+      const row = document.createElement("tr");
+      const cond = document.createElement("td");
+      const feat = document.createElement("td");
+      cond.innerText = d.condition;
+      feat.innerText = d.features;
+      row.appendChild(cond);
+      row.appendChild(feat);
+      tbody.appendChild(row);
+    }
+
+    function getDisorder(pitch, gender) {
+      for (let d of pitchDisorders) {
+        if (gender === "male" && d.male && pitch >= d.male[0] && pitch <= d.male[1]) return d;
+        if (gender === "female" && d.female && pitch >= d.female[0] && pitch <= d.female[1]) return d;
+      }
+      return null;
+    }
+
+    // --- PITCH ANALYZER CODE ---
+    let audioContext, analyser, microphone, processor, mediaRecorder;
+    let chunks = [], startTime, timerInterval, chart;
+    const API_BASE = (window.location.port === "5500" || window.location.port === "5501")
+      ? "http://127.0.0.1:5000"
+      : window.location.origin;
+
+    function setupChart() {
+      const ctx = document.getElementById('pitchChart').getContext('2d');
+      if (chart) {
+  chart.destroy();
+  chart = null;
+}
+
+      chart = new Chart(ctx, {
+        type: 'bar',
+        data: { datasets: [{ label: 'Pitch', data: [{ x: 5, y: 0 }], backgroundColor: 'blue' }] },
+        options: {
+          responsive: false,
+          animation: false,
+          scales: {
+            x: { type: 'linear', min: 0, max: 10, title: { display: true, text: 'Time (s)' }, ticks: { stepSize: 5 } },
+            y: { type: 'linear', min: 85, max: 255, title: { display: true, text: 'Pitch (Hz)' }, ticks: { stepSize: 10 } }
+          },
+          plugins: { legend: { display: false } }
+        },
+        plugins: [{
+          id: 'highlightGender',
+          beforeDraw(chart) {
+            const ctx = chart.ctx;
+            const { left, right } = chart.chartArea;
+            const width = right - left;
+
+            const maleLow = Math.min(chart.scales.y.getPixelForValue(85), chart.scales.y.getPixelForValue(165));
+            const maleHigh = Math.max(chart.scales.y.getPixelForValue(85), chart.scales.y.getPixelForValue(165));
+            const femaleLow = Math.min(chart.scales.y.getPixelForValue(165), chart.scales.y.getPixelForValue(255));
+            const femaleHigh = Math.max(chart.scales.y.getPixelForValue(165), chart.scales.y.getPixelForValue(255));
+
+            ctx.save();
+            ctx.fillStyle = 'rgba(37, 99, 235, 0.10)';
+            ctx.fillRect(left, maleLow, width, maleHigh - maleLow);
+            ctx.fillStyle = 'rgba(236, 72, 153, 0.10)';
+            ctx.fillRect(left, femaleLow, width, femaleHigh - femaleLow);
+
+            ctx.fillStyle = 'blue';
+            ctx.font = '14px Arial';
+            ctx.fillText('Male Range', left + 10, maleLow + 18);
+
+            ctx.fillStyle = 'deeppink';
+            ctx.fillText('Female Range', left + 10, femaleLow + 18);
+            ctx.restore();
+          }
+        }]
+      });
+    }
+
+    function autoCorrelate(buffer, sampleRate) {
+      let SIZE = buffer.length;
+      let rms = 0;
+      for(let i=0;i<SIZE;i++) rms+=buffer[i]*buffer[i];
+      rms=Math.sqrt(rms/SIZE);
+      if(rms<0.01) return -1;
+      let r1=0,r2=SIZE-1,thres=0.2;
+      for(let i=0;i<SIZE/2;i++) if(Math.abs(buffer[i])<thres){r1=i;break;}
+      for(let i=1;i<SIZE/2;i++) if(Math.abs(buffer[SIZE-i])<thres){r2=SIZE-i;break;}
+      buffer=buffer.slice(r1,r2); SIZE=buffer.length;
+      let c=new Array(SIZE).fill(0);
+      for(let i=0;i<SIZE;i++) for(let j=0;j<SIZE-i;j++) c[i]+=buffer[j]*buffer[j+i];
+      let d=0; while(c[d]>c[d+1]) d++; let maxval=-1,maxpos=-1;
+      for(let i=d;i<SIZE;i++){if(c[i]>maxval){maxval=c[i];maxpos=i;}}
+      return sampleRate/maxpos;
+    }
+
+    function startRecording() {
+  if (isRecording) return;
+  isRecording = true;
+      chunks = [];
+timerInterval = null;
+
+  setupChart();
+   startTime = Date.now();
+
+  document.getElementById("downloadAudio").style.display="none";
+  document.getElementById("downloadChart").style.display="none";
+  document.getElementById("downloadChart").removeAttribute("href");
+  document.getElementById("pitchInfo").innerText="Pitch: -- Hz | Category: --";
+  document.getElementById("timer").innerText="Time: 0s";
+  document.getElementById("pitchConditionBox").innerText="Clinical Assessment: --";
+  document.getElementById("pitchFeaturesBox").innerText="Detected Vocal Features: --";
+
+  navigator.mediaDevices.getUserMedia({audio:true})
+  .then(stream => {
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    microphone = audioContext.createMediaStreamSource(stream);
+    processor = audioContext.createScriptProcessor(2048,1,1);
+
+    analyser.fftSize = 2048;
+    microphone.connect(analyser);
+    analyser.connect(processor);
+    processor.connect(audioContext.destination);
+
+    processor.onaudioprocess = () => {
+
+      const buffer = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(buffer);
+
+      const pitch = autoCorrelate(buffer, audioContext.sampleRate);
+
+      const timeElapsed = Math.floor((Date.now() - startTime)/1000);
+      document.getElementById("timer").innerText = `Time: ${timeElapsed}s`;
+
+      if(pitch > 85 && pitch < 255){
+
+        let color = (pitch <= 165) ? 'blue' : 'deeppink';
+
+        chart.data.datasets[0].data[0].y = pitch;
+        chart.data.datasets[0].backgroundColor = color;
+        chart.update();
+
+        let category = (pitch <= 145) ? 'Low Pitch' :
+                        (pitch <= 197) ? 'Medium Pitch' : 'High Pitch';
+
+        document.getElementById("pitchInfo").innerText =
+        `Pitch: ${pitch.toFixed(1)} Hz | Category: ${category}`;
+
+        const patientSex = document.getElementById("patientSex").value.toLowerCase();
+        const gender = patientSex === "female"
+          ? "female"
+          : patientSex === "male"
+            ? "male"
+            : (pitch <= 165 ? "male" : "female");
+
+        const disorder = getDisorder(pitch, gender);
+
+        if(disorder){
+          document.getElementById("pitchConditionBox").innerText =
+          `Clinical Assessment: ${disorder.condition}`;
+
+          document.getElementById("pitchFeaturesBox").innerText =
+          `Detected Vocal Features: ${disorder.features}`;
+        } else {
+          document.getElementById("pitchConditionBox").innerText =
+          `Clinical Assessment: Normal`;
+
+          document.getElementById("pitchFeaturesBox").innerText =
+          `Detected Vocal Features: Clear voice`;
+        }
+      }
+
+      
+    };
+
+    mediaRecorder = new MediaRecorder(stream);
+    chunks = [];
+
+    mediaRecorder.ondataavailable = e => chunks.push(e.data);
+
+    mediaRecorder.onstop = async () => {
+
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+
+      const audioURL = URL.createObjectURL(blob);
+      const audioLink = document.getElementById("downloadAudio");
+      audioLink.href = audioURL;
+      audioLink.style.display = "inline";
+
+      const formData = new FormData();
+      formData.append("audio", blob, "voice.webm");
+
+      try {
+        const response = await fetch(`${API_BASE}/predict`, {
+          method: "POST",
+          body: formData
+        });
+
+        const responseText = await response.text();
+        let data = {};
+
+        try {
+          data = responseText ? JSON.parse(responseText) : {};
+        } catch (parseError) {
+          data = {};
+        }
+
+        if (!response.ok) {
+          const message = data.error || data.message || responseText || `HTTP ${response.status}`;
+          throw new Error(message);
+        }
+
+        console.log("AI Response:", data);
+
+        const chartLink = document.getElementById("downloadChart");
+        if (chart && chart.canvas) {
+          chartLink.href = chart.toBase64Image();
+          chartLink.style.display = "inline";
+        }
+
+        const predictionText = data.prediction || data.error || data.message || "No prediction returned";
+        document.getElementById("pitchConditionBox").innerText =
+          `AI Diagnosis: ${predictionText}`;
+        document.getElementById("pitchFeaturesBox").innerText =
+          responseText
+            ? `Server Response: ${responseText}`
+            : "Server Response: OK";
+
+      } catch (error) {
+        console.error("Prediction error:", error);
+        const errorMessage = error && error.message ? error.message : String(error);
+        document.getElementById("pitchConditionBox").innerText =
+          `AI Diagnosis Error: ${errorMessage}`;
+        document.getElementById("pitchFeaturesBox").innerText =
+          "Please check that the backend is running and the audio file is valid.";
+      }
+    };
+
+    startTime = Date.now();
+    setTimeout(() => {
+  mediaRecorder.start();
+}, 50);
+
+    timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startTime)/1000);
+      if (elapsed >= 10) {
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
+}
+    }, 1000);
+
+  })
+  .catch(err => alert("Microphone access denied."));
+}
+
+  function stopRecording() {
+
+    if (!mediaRecorder && !audioContext) return;
+
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  }
+
+  if (processor) {
+    processor.disconnect();
+    processor = null;
+  }
+
+  if (analyser) {
+    analyser.disconnect();
+    analyser = null;
+  }
+
+  if (microphone) {
+    microphone.disconnect();
+    microphone = null;
+  }
+
+  if (audioContext) {
+  audioContext.suspend(); // NOT close
+}
+  isRecording = false;
+}
+ 
+  </script>
+
+  
+ 
+
+</body>
+</html>
